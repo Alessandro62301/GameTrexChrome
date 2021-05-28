@@ -6,19 +6,103 @@ const canvas = document.getElementById('game');
 const contexto = canvas.getContext('2d');
 
 //void ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-function colisao(Trex,chao){
- const trexY = (Trex.y + Trex.altura) ;
- const chaoY = chao.y;
+const globais = {};
 
- if(trexY  <= chaoY){
-     return true;
- }
-     return false;
- 
+function criaTrex(){
+    const Trex = {  
+        spriteX :964,
+        spriteY :3,
+        largura :47,
+        altura :50,
+        x :0,
+        y :canvas.height - 64,
+        pulo : 7,
+        velocidadeAndar :0 ,
+        velocidade : 10,
+        aceleracao : 0,
+        gravidade : 0.25,
+    
+    
+        desenha(){
+            contexto.drawImage(
+                sprites, 
+                Trex.spriteX, Trex.spriteY,
+                Trex.largura,Trex.altura, 
+                Trex.x,Trex.y, 
+                Trex.largura,Trex.altura, 
+                );
+        },
+        atualiza(){
+            Trex.velocidadeAndar = Trex.velocidadeAndar  + Trex.aceleracao;
+            Trex.x = Trex.x + Trex.velocidadeAndar;
+        },
+        atualizaQueda(){
+            if(verificarAltura(Trex,canvas) == true){
+                console.log(Trex.y);
+    
+                return;
+            }
+            
+            Trex.velocidade = Trex.velocidade  + Trex.gravidade;
+            Trex.y = Trex.y + Trex.velocidade;
+            
+    
+            
+            
+        },
+        pula(){
+            Trex.y = Trex.y - Trex.pulo;
+            Trex.velocidade = - Trex.pulo;  
+    
+        }, 
+    }
+    return Trex;
+}
+function criaChao(){
+
+    const chao = {
+        spriteX :0,
+        spriteY :59,
+        largura :1379,
+        altura :15,
+        x :0,
+        y :canvas.height - 15,
+    
+        atualiza(){
+            const movimentoChao  = 5;
+            const repeteEm = chao.largura/1.2;
+            const movimentacao = chao.x - movimentoChao; 
+           
+            chao.x = movimentacao  % repeteEm;
+        },
+        desenha(){
+            contexto.drawImage(
+                sprites, 
+                chao.spriteX, chao.spriteY,
+                chao.largura,chao.altura, 
+                chao.x,chao.y, 
+                chao.largura,chao.altura, 
+                );
+    
+            contexto.drawImage(
+                sprites, 
+                chao.spriteX, chao.spriteY,
+                chao.largura,chao.altura, 
+                chao.x + chao.largura,chao.y, 
+                chao.largura,chao.altura, 
+                );
+        }
+    }
+
+
+
+    return chao;
+}
+
+
+function colisao(Trex,cacto){
 }
 function verificarAltura(Trex,canvas){
-
-    
 
     if(Trex.y > canvas.height -60){
         return true;
@@ -26,53 +110,7 @@ function verificarAltura(Trex,canvas){
   
     return;
 }
-const Trex = {  
-    spriteX :964,
-    spriteY :3,
-    largura :47,
-    altura :50,
-    x :0,
-    y :canvas.height - 64,
-    pulo : 7,
-    velocidadeAndar :0.05 ,
-    velocidade : 10,
-    aceleracao : 0.01,
-    gravidade : 0.25,
 
-
-    desenha(){
-        contexto.drawImage(
-            sprites, 
-            Trex.spriteX, Trex.spriteY,
-            Trex.largura,Trex.altura, 
-            Trex.x,Trex.y, 
-            Trex.largura,Trex.altura, 
-            );
-    },
-    atualiza(){
-        Trex.velocidadeAndar = Trex.velocidadeAndar  + Trex.aceleracao;
-        Trex.x = Trex.x + Trex.velocidadeAndar;
-    },
-    atualizaQueda(){
-        if(verificarAltura(Trex,canvas) == true){
-            console.log(Trex.y);
-
-            return;
-        }
-        
-        Trex.velocidade = Trex.velocidade  + Trex.gravidade;
-        Trex.y = Trex.y + Trex.velocidade;
-        
-
-        
-        
-    },
-    pula(){
-        Trex.y = Trex.y - Trex.pulo;
-        Trex.velocidade = - Trex.pulo;  
-
-    }, 
-}
 const planoFundo = {
      desenha(){
          contexto.fillStyle = '#fff';
@@ -80,32 +118,7 @@ const planoFundo = {
      }
 }
 
-const chao = {
-    spriteX :0,
-    spriteY :59,
-    largura :1379,
-    altura :15,
-    x :0,
-    y :canvas.height - 15,
 
-    desenha(){
-        contexto.drawImage(
-            sprites, 
-            chao.spriteX, chao.spriteY,
-            chao.largura,chao.altura, 
-            chao.x,chao.y, 
-            chao.largura,chao.altura, 
-            );
-
-        contexto.drawImage(
-            sprites, 
-            chao.spriteX, chao.spriteY,
-            chao.largura,chao.altura, 
-            chao.x + chao.largura,chao.y, 
-            chao.largura,chao.altura, 
-            );
-    }
-}
 const passaro =  {
     spriteX :204,
     spriteY :3,
@@ -168,10 +181,17 @@ const mensagemComecar = {
 let telaAtiva = {};
 function mudaTela(novaTela){
     telaAtiva = novaTela;
+    if(telaAtiva.inicializar){
+        telaAtiva.inicializar();
+    }
 }
 const telas = { 
 
     INICIO : { 
+        inicializar(){
+           globais.Trex =   criaTrex();
+           globais.chao = criaChao();
+        },
          desenha(){
             mensagemComecar.desenha();
          },
@@ -186,20 +206,20 @@ const telas = {
     JOGO : {
         desenha(){
             planoFundo.desenha();
-            chao.desenha();
+            globais.chao.desenha();
             cacto.desenha();
             passaro.desenha();
-            Trex.desenha();
+            globais.Trex.desenha();
         },
         keydown(){
-            if(Trex.y == 446.25){
-                Trex.pula();           
+            if(globais.Trex.y == 446.25){
+                globais.Trex.pula();           
             }
         
         },
         atualiza(){
-          Trex.atualiza();
-          Trex.atualizaQueda();
+            globais.chao.atualiza();
+            globais.Trex.atualizaQueda();
         }
     },
 
