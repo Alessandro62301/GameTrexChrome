@@ -4,6 +4,7 @@ const sprites = new Image();
 sprites.src ='./Game.png';
 const canvas = document.getElementById('game');
 const contexto = canvas.getContext('2d');
+let frames = 0;
 
 //void ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 const globais = {};
@@ -14,7 +15,7 @@ function criaTrex(){
         spriteY :3,
         largura :47,
         altura :50,
-        x :0,
+        x :20,
         y :canvas.height - 64,
         pulo : 7,
         velocidadeAndar :0 ,
@@ -22,11 +23,31 @@ function criaTrex(){
         aceleracao : 0,
         gravidade : 0.25,
     
-    
+        movimentos :[
+            {spriteX :964, spriteY : 3},
+            {spriteX :1116 , spriteY : 3},
+            {spriteX :1065 , spriteY : 3},
+        ],
+        framesAtual :0,
+        atualizaFrame(){
+            const intervaloFrames = 5;
+            const passouIntervalo = frames % intervaloFrames === 0 ;
+            if(passouIntervalo){
+                if(Trex.y > 446){
+                    const baseIncremento = 1;
+                    const incremento = baseIncremento + Trex.framesAtual;
+                    const baseRepeticao = Trex.movimentos.length;
+                    Trex.framesAtual = incremento % baseRepeticao;
+            }
+         
+        }},
         desenha(){
+            const {spriteX , spriteY } = Trex.movimentos[this.framesAtual];
+
+            this.atualizaFrame();
             contexto.drawImage(
                 sprites, 
-                Trex.spriteX, Trex.spriteY,
+                spriteX, spriteY,
                 Trex.largura,Trex.altura, 
                 Trex.x,Trex.y, 
                 Trex.largura,Trex.altura, 
@@ -37,9 +58,7 @@ function criaTrex(){
             Trex.x = Trex.x + Trex.velocidadeAndar;
         },
         atualizaQueda(){
-            if(verificarAltura(Trex,canvas) == true){
-                console.log(Trex.y);
-    
+            if(verificarAltura(Trex,canvas) == true){    
                 return;
             }
             
@@ -98,8 +117,72 @@ function criaChao(){
 
     return chao;
 }
+function criaCactos(){
 
+    const random = 0;
 
+    const cacto = {
+        spriteX :375,
+        spriteY :2,
+        largura :27,
+        altura :56,
+        x :800 ,
+        y :canvas.height - 56,
+
+        tipos :[
+            {spriteX :375, spriteY : 2},
+            {spriteX :488 , spriteY : 2},
+            {spriteX :335 , spriteY : 2},
+        ],
+    
+        desenha(){
+            
+            cacto.pares.forEach(function(par){
+                const cactoChaoX = par.x;
+                const cactoChaoY = canvas.height - 56;
+                contexto.drawImage(
+                sprites, 
+                cacto.spriteX, cacto.spriteY,
+                cacto.largura,cacto.altura, 
+                cactoChaoX,cactoChaoY, 
+                cacto.largura,cacto.altura, 
+                );
+            }
+        )},
+            pares : [],
+            
+        atualiza(){
+            const passou100Frames = frames %150 == 0;
+            if(passou100Frames){
+                cacto.pares.push({
+                    x:canvas.width,
+                })
+            }
+            const passou350Frames = frames %350 == 0;
+            if(passou350Frames){
+                cacto.pares.push({
+                    x:canvas.width -25,
+                })
+            }
+            const passou110Frames = frames %110 == 0;
+            if(passou110Frames){
+                cacto.pares.push({
+                    x:canvas.width + 25,
+                })
+            }
+
+            cacto.pares.forEach(function(par){
+                 par.x = par.x -5;
+                 
+                 if(par.x <= -50){
+                     cacto.pares.shift();
+                 }
+            });
+       
+      }
+    }
+    return cacto;
+}
 function colisao(Trex,cacto){
 }
 function verificarAltura(Trex,canvas){
@@ -137,24 +220,7 @@ const passaro =  {
             );
         }
 }
-const cacto = {
-    spriteX :375,
-    spriteY :2,
-    largura :27,
-    altura :56,
-    x :400,
-    y :canvas.height - 56,
 
-    desenha(){
-        contexto.drawImage(
-            sprites, 
-            cacto.spriteX, cacto.spriteY,
-            cacto.largura,cacto.altura, 
-            cacto.x,cacto.y, 
-            cacto.largura,cacto.altura, 
-            );
-        }
-}
 const mensagemComecar = {
     spriteX :43,
     spriteY :4,
@@ -189,11 +255,13 @@ const telas = {
 
     INICIO : { 
         inicializar(){
-           globais.Trex =   criaTrex();
+           globais.Trex =  criaTrex();
            globais.chao = criaChao();
+           globais.cacto = criaCactos();
         },
          desenha(){
             mensagemComecar.desenha();
+        
          },
          atualiza(){
 
@@ -207,7 +275,8 @@ const telas = {
         desenha(){
             planoFundo.desenha();
             globais.chao.desenha();
-            cacto.desenha();
+            globais.cacto.desenha();
+            globais.cacto.atualiza();
             passaro.desenha();
             globais.Trex.desenha();
         },
@@ -234,6 +303,7 @@ function loop(){
     telaAtiva.desenha();
     telaAtiva.atualiza();
     
+    frames  = frames +1;
     requestAnimationFrame(loop);
 }
 window.addEventListener('keydown' ,function(){
@@ -241,13 +311,6 @@ window.addEventListener('keydown' ,function(){
         telaAtiva.keydown();
     }
 });
-window.addEventListener('keydown' ,function(evento){
-    console.log(evento.key);
-    if(evento.key === 32){
-        if(telaAtiva.keydown){
-            telaAtiva.keydown();
-        }
-    }
-});
+
 mudaTela(telas.INICIO);
 loop();
