@@ -89,7 +89,7 @@ function criaChao(){
     
         atualiza(){
             const movimentoChao  = VelocidadeGame; //5
-            const repeteEm = chao.largura/1.2;
+            const repeteEm = chao.largura/2;
             const movimentacao = chao.x - movimentoChao; 
            
             chao.x = movimentacao  % repeteEm;
@@ -482,6 +482,11 @@ window.addEventListener('keydown' ,function(){
     }
 });
 window.addEventListener('click' ,function(){
+    if(telaAtiva.keydown){
+        telaAtiva.keydown();
+    }
+});
+window.addEventListener('ontouchstart' ,function(){
     if(telaAtiva.keydown){
         telaAtiva.keydown();
     }
