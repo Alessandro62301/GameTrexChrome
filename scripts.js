@@ -481,6 +481,11 @@ window.addEventListener('keydown' ,function(){
         telaAtiva.keydown();
     }
 });
+window.addEventListener('click' ,function(){
+    if(telaAtiva.keydown){
+        telaAtiva.keydown();
+    }
+});
 
 mudaTela(telas.INICIO);
 loop();
