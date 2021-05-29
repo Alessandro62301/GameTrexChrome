@@ -150,6 +150,15 @@ function criaCactos(){
             }
         )},
             pares : [],
+
+            colisaoCacto(par){
+
+                if(globais.Trex.x >= par.x && globais.Trex.y >= cacto.y){
+                    mudaTela(telas.INICIO);
+                }
+  
+                return false;
+            },
             
         atualiza(){
             const passou100Frames = frames %150 == 0;
@@ -174,7 +183,11 @@ function criaCactos(){
             cacto.pares.forEach(function(par){
                  par.x = par.x -5;
                  
-                 if(par.x <= -50){
+                if(cacto.colisaoCacto(par) === true){
+                    telas.INICIO();
+                }
+
+                 if(par.x + cacto.largura <= -50){
                      cacto.pares.shift();
                  }
             });
@@ -183,8 +196,76 @@ function criaCactos(){
     }
     return cacto;
 }
-function colisao(Trex,cacto){
+function criaPassaro(){
+    const passaro =  {
+        spriteX :204,
+        spriteY :3,
+        largura :50,
+        altura :35,
+        x :100,
+        y :350,
+
+        movimentos :[
+            {spriteX :151, spriteY : 10},
+            {spriteX :204 , spriteY : 3},
+        ],
+        framesAtual :0,
+        atualizaFrame(){
+
+            const intervaloFrames = 10;
+            const passouIntervalo = frames % intervaloFrames === 0 ;
+            if(passouIntervalo){
+                    const baseIncremento = 1;
+                    const incremento = baseIncremento + passaro.framesAtual;
+                    const baseRepeticao = passaro.movimentos.length;
+                    passaro.framesAtual = incremento % baseRepeticao; 
+                }
+               
+    },
+
+     pares : [],
+
+        desenha(){
+            const {spriteX , spriteY } = passaro.movimentos[passaro.framesAtual];
+
+            passaro.pares.forEach(function(par){
+                const passaroX = par.x;
+                const passaroY = canvas.height - 156;
+                passaro.atualizaFrame(); 
+                contexto.drawImage(
+                sprites, 
+                spriteX,spriteY,
+                passaro.largura,passaro.altura, 
+                passaroX,passaroY, 
+                passaro.largura,passaro.altura, 
+                );
+          })
+        },
+        atualiza(){
+            const passou100Frames = frames %300 === 0;
+            if(passou100Frames){
+                passaro.pares.push({
+                    x:canvas.width,
+                })
+            }
+            passaro.pares.forEach(function(par){
+                par.x = par.x -5;
+                
+                if(par.x + passaro.largura <= -50){
+                    passaro.pares.shift();
+                }
+           });
+        }
+
+        }
+    
+    return passaro;
 }
+
+
+
+
+
 function verificarAltura(Trex,canvas){
 
     if(Trex.y > canvas.height -60){
@@ -202,24 +283,7 @@ const planoFundo = {
 }
 
 
-const passaro =  {
-    spriteX :204,
-    spriteY :3,
-    largura :49,
-    altura :31,
-    x :100,
-    y :350,
 
-    desenha(){
-        contexto.drawImage(
-            sprites, 
-            passaro.spriteX, passaro.spriteY,
-            passaro.largura,passaro.altura, 
-            passaro.x,passaro.y, 
-            passaro.largura,passaro.altura, 
-            );
-        }
-}
 
 const mensagemComecar = {
     spriteX :43,
@@ -258,6 +322,7 @@ const telas = {
            globais.Trex =  criaTrex();
            globais.chao = criaChao();
            globais.cacto = criaCactos();
+           globais.passaro = criaPassaro();
         },
          desenha(){
             mensagemComecar.desenha();
@@ -277,7 +342,8 @@ const telas = {
             globais.chao.desenha();
             globais.cacto.desenha();
             globais.cacto.atualiza();
-            passaro.desenha();
+            globais.passaro.atualiza();
+            globais.passaro.desenha();
             globais.Trex.desenha();
         },
         keydown(){
@@ -291,6 +357,7 @@ const telas = {
             globais.Trex.atualizaQueda();
         }
     },
+   
 
 };
 
