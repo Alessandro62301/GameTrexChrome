@@ -5,7 +5,7 @@ sprites.src ='./Game.png';
 const canvas = document.getElementById('game');
 const contexto = canvas.getContext('2d');
 let frames = 0;
-
+let VelocidadeGame = 5;
 //void ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 const globais = {};
 
@@ -17,9 +17,9 @@ function criaTrex(){
         altura :50,
         x :20,
         y :canvas.height - 64,
-        pulo : 7,
+        pulo : 7, //7
         velocidadeAndar :0 ,
-        velocidade : 10,
+        velocidade : 10, //10
         aceleracao : 0,
         gravidade : 0.25,
     
@@ -88,7 +88,7 @@ function criaChao(){
         y :canvas.height - 15,
     
         atualiza(){
-            const movimentoChao  = 5;
+            const movimentoChao  = VelocidadeGame; //5
             const repeteEm = chao.largura/1.2;
             const movimentacao = chao.x - movimentoChao; 
            
@@ -181,12 +181,12 @@ function criaCactos(){
             }
 
             cacto.pares.forEach(function(par){
-                 par.x = par.x -5;
+                 par.x = par.x -VelocidadeGame;
                  
                 if(cacto.colisaoCacto(par) === true){
                     telas.INICIO();
                 }
-
+                
                  if(par.x + cacto.largura <= -50){
                      cacto.pares.shift();
                  }
@@ -225,6 +225,15 @@ function criaPassaro(){
 
      pares : [],
 
+     colisaoPassaro(par){
+
+        if(globais.Trex.x >= par.x && globais.Trex.y >= passaro.y){
+            mudaTela(telas.INICIO);
+        }
+
+        return false;
+    },
+
         desenha(){
             const {spriteX , spriteY } = passaro.movimentos[passaro.framesAtual];
 
@@ -242,19 +251,24 @@ function criaPassaro(){
           })
         },
         atualiza(){
-            const passou100Frames = frames %300 === 0;
+            const passou100Frames = frames %500  === 0;
             if(passou100Frames){
                 passaro.pares.push({
                     x:canvas.width,
                 })
             }
             passaro.pares.forEach(function(par){
-                par.x = par.x -5;
+                par.x = par.x -VelocidadeGame;
+
+                if(passaro.colisaoPassaro(par) === true){
+                    telas.INICIO();
+                }
                 
                 if(par.x + passaro.largura <= -50){
                     passaro.pares.shift();
                 }
            });
+           
         }
 
         }
