@@ -153,11 +153,12 @@ function criaCactos(){
 
             colisaoCacto(par){
 
-                if(globais.Trex.x >= par.x && globais.Trex.y >= cacto.y){
-                    mudaTela(telas.INICIO);
+                if(globais.Trex.x == par.x && globais.Trex.y >= cacto.y){
+                    mudaTela(telas.GAMEOVER);
                 }
   
                 return false;
+            
             },
             
         atualiza(){
@@ -227,8 +228,8 @@ function criaPassaro(){
 
      colisaoPassaro(par){
 
-        if(globais.Trex.x >= par.x && globais.Trex.y >= passaro.y){
-            mudaTela(telas.INICIO);
+        if(globais.Trex.x == par.x && globais.Trex.y <= passaro.y){
+            mudaTela(telas.GAMEOVER);
         }
 
         return false;
@@ -251,8 +252,9 @@ function criaPassaro(){
           })
         },
         atualiza(){
-            const passou100Frames = frames %500  === 0;
-            if(passou100Frames){
+            // const random = Math.random()  * 1000;
+            const passou100Frames = frames %500 === 0;
+             if(passou100Frames){
                 passaro.pares.push({
                     x:canvas.width,
                 })
@@ -274,6 +276,33 @@ function criaPassaro(){
         }
     
     return passaro;
+}
+function criaPlacar(){
+
+    const placar = {
+        pontuacao : 0,
+
+        desenha(){
+            contexto.font = "50px VT323";
+            contexto.textAlign = 'right';
+            contexto.fillStyle = '#535353';
+            contexto.fillText(`SCORE : ${placar.pontuacao}`, canvas.width - 50, 50);
+
+
+        },
+        atualiza(){
+            const intervaloFrames = 10;
+            const passouIntervalo = frames % intervaloFrames === 0 ;
+            if(passouIntervalo){
+                placar.pontuacao = placar.pontuacao + 1;
+            }
+
+        },
+    }
+
+
+
+    return placar;
 }
 
 
@@ -305,7 +334,7 @@ const mensagemComecar = {
     largura :52,
     altura :51,
     x :0,
-    y :canvas.height - 55,
+    y :canvas.height - 64,
 
     desenha(){
         contexto.drawImage(
@@ -314,6 +343,44 @@ const mensagemComecar = {
             mensagemComecar.largura,mensagemComecar.altura, 
             mensagemComecar.x,mensagemComecar.y, 
             mensagemComecar.largura,mensagemComecar.altura, 
+            );
+        }
+};
+const mensagemGameOver = {
+    spriteX :742,
+    spriteY :16,
+    largura :222,
+    altura :13,
+    x :370 ,
+    y :canvas.height - 250,
+
+    desenha(){
+
+        contexto.drawImage(
+            sprites, 
+            mensagemGameOver.spriteX, mensagemGameOver.spriteY,
+            mensagemGameOver.largura,mensagemGameOver.altura, 
+            mensagemGameOver.x,mensagemGameOver.y, 
+            mensagemGameOver.largura,mensagemGameOver.altura, 
+            
+            );
+        }
+};
+const botaoReiniciar = {
+    spriteX :2,
+    spriteY :2,
+    largura :40,
+    altura :35,
+    x :460 ,
+    y :canvas.height - 200,
+
+    desenha(){
+        contexto.drawImage(
+            sprites, 
+            botaoReiniciar.spriteX, botaoReiniciar.spriteY,
+            botaoReiniciar.largura,botaoReiniciar.altura, 
+            botaoReiniciar.x,botaoReiniciar.y, 
+            botaoReiniciar.largura,botaoReiniciar.altura, 
             );
         }
 };
@@ -333,6 +400,7 @@ const telas = {
 
     INICIO : { 
         inicializar(){
+           globais.placar = criaPlacar();
            globais.Trex =  criaTrex();
            globais.chao = criaChao();
            globais.cacto = criaCactos();
@@ -340,10 +408,15 @@ const telas = {
         },
          desenha(){
             mensagemComecar.desenha();
-        
+            planoFundo.desenha();
+            globais.chao.desenha();
+            globais.cacto.desenha();
+            globais.passaro.desenha();
+            globais.Trex.desenha();
+            globais.placar.desenha();
          },
          atualiza(){
-
+           
          },
          keydown(){
              mudaTela(telas.JOGO);
@@ -355,10 +428,9 @@ const telas = {
             planoFundo.desenha();
             globais.chao.desenha();
             globais.cacto.desenha();
-            globais.cacto.atualiza();
-            globais.passaro.atualiza();
             globais.passaro.desenha();
             globais.Trex.desenha();
+            globais.placar.desenha();
         },
         keydown(){
             if(globais.Trex.y == 446.25){
@@ -367,10 +439,27 @@ const telas = {
         
         },
         atualiza(){
+            globais.cacto.atualiza();
+            globais.passaro.atualiza();
+            globais.placar.atualiza();  
             globais.chao.atualiza();
             globais.Trex.atualizaQueda();
         }
     },
+
+    GAMEOVER :{
+        desenha(){
+           mensagemGameOver.desenha();
+           botaoReiniciar.desenha();
+        },
+        keydown(){
+            mudaTela(telas.INICIO);
+        },
+        atualiza(){
+            
+        }
+    },
+    
    
 
 };
